@@ -8,15 +8,33 @@ const logContainer = document.getElementById('logContainer');
 const metricsPanel = document.getElementById('metricsPanel');
 
 let isAnalyzing = false;
+let currentTabId = null;
 
 // Initialize popup
 async function init() {
   try {
+    // Get current tab first
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    currentTabId = tab.id;
+    
     // Check if background service worker is ready
     const response = await chrome.runtime.sendMessage({ type: 'STATUS_CHECK' });
     updateStatus(response.ready);
     addLog('Extension initialized successfully');
+    
+    // Also check content script in current tab
+    try {
+      const csResponse = await chrome.tabs.sendMessage(currentTabId, { type: 'STATUS_CHECK' });
+      if (csResponse && csResponse.ready) {
+        addLog('Content script ready in current tab');
+      } else {
+        addLog('Note: Refresh page to activate content script');
+      }
+    } catch (e) {
+      addLog('Note: Refresh page to activate content script');
+    }
   } catch (error) {
+    console.error('Init error:', error);
     updateStatus(false);
     addLog('Warning: Background service not ready');
   }
@@ -63,6 +81,16 @@ analyzeBtn.addEventListener('click', async () => {
     // Get current tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
+    // First check if content script is ready in this tab
+    try {
+      const csCheck = await chrome.tabs.sendMessage(tab.id, { type: 'STATUS_CHECK' });
+      if (!csCheck || !csCheck.ready) {
+        throw new Error('Content script not ready. Please refresh the page.');
+      }
+    } catch (e) {
+      throw new Error('Content script not responding. Please refresh the page and try again.');
+    }
+    
     // Send analyze command to background script
     const result = await chrome.runtime.sendMessage({
       type: 'ANALYZE_PAGE',
@@ -88,6 +116,7 @@ analyzeBtn.addEventListener('click', async () => {
       addLog(`✗ Error: ${result.error}`);
     }
   } catch (error) {
+    console.error('Analysis error:', error);
     addLog(`✗ Error: ${error.message}`);
   } finally {
     isAnalyzing = false;

@@ -16,7 +16,7 @@ async function init() {
     
     console.log('Privacy Vision Agent content script initialized');
     
-    // Listen for messages from background script
+    // Listen for messages from background script (single listener)
     chrome.runtime.onMessage.addListener(handleMessage);
     
   } catch (error) {
@@ -60,14 +60,46 @@ async function initializePIIDetector() {
   }
 }
 
+// Rule-based PII detection function (fallback and primary method)
+function detectPIILocal(pageData) {
+  const piiElements = [];
+  
+  for (const element of pageData.elements) {
+    const piiType = checkElementForPII(element);
+    if (piiType) {
+      piiElements.push({
+        ...element,
+        piiType,
+        confidence: 0.95 // High confidence for rule-based detection
+      });
+    }
+  }
+  
+  return piiElements;
+}
+
 // Handle messages from background script
 function handleMessage(message, sender, sendResponse) {
+  console.log('Content script received message:', message.type);
+  
   if (message.type === 'CAPTURE_AND_SANITIZE') {
     captureAndSanitizePage()
-      .then(result => sendResponse(result))
-      .catch(error => sendResponse({ success: false, error: error.message }));
+      .then(result => {
+        console.log('Capture complete, sending response');
+        sendResponse(result);
+      })
+      .catch(error => {
+        console.error('Capture failed:', error);
+        sendResponse({ success: false, error: error.message });
+      });
     return true; // Keep channel open for async response
   }
+  
+  if (message.type === 'STATUS_CHECK') {
+    sendResponse({ ready: true, initialized: true });
+    return true;
+  }
+  
   return false;
 }
 
