@@ -4,6 +4,10 @@
 // Import ONNX Runtime Web for local inference (will be loaded dynamically)
 let ort = null;
 let piiDetector = null;
+let isInitialized = false;
+
+// Synchronous message handler setup - MUST be at top level
+chrome.runtime.onMessage.addListener(handleMessage);
 
 // Initialize the content script
 async function init() {
@@ -14,13 +18,13 @@ async function init() {
     // Initialize PII detector model
     await initializePIIDetector();
     
+    isInitialized = true;
     console.log('Privacy Vision Agent content script initialized');
-    
-    // Listen for messages from background script (single listener)
-    chrome.runtime.onMessage.addListener(handleMessage);
     
   } catch (error) {
     console.error('Failed to initialize content script:', error);
+    // Still mark as initialized with fallback
+    isInitialized = true;
   }
 }
 
@@ -44,22 +48,6 @@ async function loadONNXRuntime() {
   });
 }
 
-// Initialize PII detection model
-async function initializePIIDetector() {
-  try {
-    // For demo purposes, we'll use a rule-based approach combined with lightweight ML
-    // In production, you would load a pre-trained model for PII detection
-    piiDetector = {
-      detect: detectPIILocal
-    };
-    console.log('PII Detector initialized (rule-based + heuristic mode)');
-  } catch (error) {
-    console.error('Failed to initialize PII detector:', error);
-    // Fallback to pure rule-based detection
-    piiDetector = { detect: detectPIILocal };
-  }
-}
-
 // Rule-based PII detection function (fallback and primary method)
 function detectPIILocal(pageData) {
   const piiElements = [];
@@ -78,11 +66,39 @@ function detectPIILocal(pageData) {
   return piiElements;
 }
 
+// Initialize PII detection model
+async function initializePIIDetector() {
+  try {
+    // For demo purposes, we'll use a rule-based approach combined with lightweight ML
+    // In production, you would load a pre-trained model for PII detection
+    piiDetector = {
+      detect: detectPIILocal
+    };
+    console.log('PII Detector initialized (rule-based + heuristic mode)');
+  } catch (error) {
+    console.error('Failed to initialize PII detector:', error);
+    // Fallback to pure rule-based detection
+    piiDetector = { detect: detectPIILocal };
+  }
+}
+
 // Handle messages from background script
 function handleMessage(message, sender, sendResponse) {
   console.log('Content script received message:', message.type);
   
+  // Handle STATUS_CHECK immediately even if not fully initialized
+  if (message.type === 'STATUS_CHECK') {
+    sendResponse({ ready: isInitialized, initialized: isInitialized });
+    return true;
+  }
+  
+  // Only process CAPTURE_AND_SANITIZE if initialized
   if (message.type === 'CAPTURE_AND_SANITIZE') {
+    if (!isInitialized) {
+      sendResponse({ success: false, error: 'Content script not initialized yet' });
+      return true;
+    }
+    
     captureAndSanitizePage()
       .then(result => {
         console.log('Capture complete, sending response');
@@ -93,11 +109,6 @@ function handleMessage(message, sender, sendResponse) {
         sendResponse({ success: false, error: error.message });
       });
     return true; // Keep channel open for async response
-  }
-  
-  if (message.type === 'STATUS_CHECK') {
-    sendResponse({ ready: true, initialized: true });
-    return true;
   }
   
   return false;
