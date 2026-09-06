@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision Agent Control Panel</title>
+  <style>
+    body {
+      width: 350px;
+      padding: 15px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    h2 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      text-align: center;
+    }
+    .status {
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-indicator.active {
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+    .status-indicator.inactive {
+      background: #f87171;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 8px;
+      background: white;
+      color: #667eea;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #f0f0f0;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .log {
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 11px;
+      font-family: monospace;
+      margin-top: 10px;
+    }
+    .log-entry {
+      margin: 3px 0;
+      word-break: break-word;
+    }
+    .metrics {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔒 Privacy Vision Agent</h2>
+  
+  <div class="status">
+    <span class="status-indicator" id="statusIndicator"></span>
+    <span id="statusText">Initializing...</span>
+  </div>
+
+  <button id="analyzeBtn">📸 Analyze Current Page</button>
+  <button id="clearLogBtn">🗑️ Clear Log</button>
+
+  <div class="metrics" id="metricsPanel" style="display:none;">
+    <div class="metric-row">
+      <span>⏱️ Inference Time:</span>
+      <span id="inferenceTime">-</span>
+    </div>
+    <div class="metric-row">
+      <span>🎯 PII Detected:</span>
+      <span id="piiCount">-</span>
+    </div>
+    <div class="metric-row">
+      <span>📊 Redaction Quality:</span>
+      <span id="redactionQuality">-</span>
+    </div>
+    <div class="metric-row">
+      <span>🌐 Server Latency:</span>
+      <span id="serverLatency">-</span>
+    </div>
+  </div>
+
+  <div class="log" id="logContainer">
+    <div class="log-entry">System ready...</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate Icons</title></head>
+<body>
+<h2>Icon Generator for Privacy Vision Agent</h2>
+<p>Open this file in a browser and use the canvas below to generate PNG icons.</p>
+<canvas id="canvas16" width="16" height="16"></canvas>
+<canvas id="canvas48" width="48" height="48"></canvas>
+<canvas id="canvas128" width="128" height="128"></canvas>
+<script>
+function drawIcon(canvasId, size) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, '#667eea');
+  gradient.addColorStop(1, '#764ba2');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  
+  // Lock icon
+  ctx.fillStyle = 'white';
+  const lockWidth = size * 0.5;
+  const lockHeight = size * 0.6;
+  const lockX = (size - lockWidth) / 2;
+  const lockY = (size - lockHeight) / 2;
+  
+  // Lock body
+  ctx.fillRect(lockX, lockY + lockHeight * 0.4, lockWidth, lockHeight * 0.6);
+  
+  // Lock shackle
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = size * 0.08;
+  ctx.beginPath();
+  ctx.arc(size/2, lockY + lockHeight * 0.3, lockWidth * 0.35, Math.PI, 0);
+  ctx.stroke();
+}
+
+drawIcon('canvas16', 16);
+drawIcon('canvas48', 48);
+drawIcon('canvas128', 128);
+
+// Download function
+function downloadCanvas(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+</script>
+<button onclick="downloadCanvas('canvas16', 'icon16.png')">Download 16x16</button>
+<button onclick="downloadCanvas('canvas48', 'icon48.png')">Download 48x48</button>
+<button onclick="downloadCanvas('canvas128', 'icon128.png')">Download 128x128</button>
+</body>
+</html>
