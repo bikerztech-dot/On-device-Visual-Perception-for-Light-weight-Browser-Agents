@@ -48,22 +48,6 @@ async function loadONNXRuntime() {
   });
 }
 
-// Initialize PII detection model
-async function initializePIIDetector() {
-  try {
-    // For demo purposes, we'll use a rule-based approach combined with lightweight ML
-    // In production, you would load a pre-trained model for PII detection
-    piiDetector = {
-      detect: detectPIILocal
-    };
-    console.log('PII Detector initialized (rule-based + heuristic mode)');
-  } catch (error) {
-    console.error('Failed to initialize PII detector:', error);
-    // Fallback to pure rule-based detection
-    piiDetector = { detect: detectPIILocal };
-  }
-}
-
 // Rule-based PII detection function (fallback and primary method)
 function detectPIILocal(pageData) {
   const piiElements = [];
@@ -80,6 +64,22 @@ function detectPIILocal(pageData) {
   }
   
   return piiElements;
+}
+
+// Initialize PII detection model
+async function initializePIIDetector() {
+  try {
+    // For demo purposes, we'll use a rule-based approach combined with lightweight ML
+    // In production, you would load a pre-trained model for PII detection
+    piiDetector = {
+      detect: detectPIILocal
+    };
+    console.log('PII Detector initialized (rule-based + heuristic mode)');
+  } catch (error) {
+    console.error('Failed to initialize PII detector:', error);
+    // Fallback to pure rule-based detection
+    piiDetector = { detect: detectPIILocal };
+  }
 }
 
 // Handle messages from background script
