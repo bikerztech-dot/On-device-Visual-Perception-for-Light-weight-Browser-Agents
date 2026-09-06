@@ -1,0 +1,23 @@
+============================================================
+Privacy-Preserving Vision Agent Server
+============================================================
+
+Starting server...
+Endpoints:
+  - GET  /health           : Health check
+  - POST /analyze          : Analyze sanitized context
+  - GET  /stats            : Processing statistics
+  - POST /demo/sample-analysis : Demo with sample data
+
+Server running on http://localhost:5000
+============================================================
+ * Serving Flask app 'app'
+ * Debug mode: on
+2026-09-06 09:06:29,750 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://21.0.3.242:5000
+2026-09-06 09:06:29,750 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-09-06 09:06:29,751 - werkzeug - INFO -  * Restarting with stat
+2026-09-06 09:06:29,989 - werkzeug - WARNING -  * Debugger is active!
+2026-09-06 09:06:29,990 - werkzeug - INFO -  * Debugger PIN: 862-879-187
